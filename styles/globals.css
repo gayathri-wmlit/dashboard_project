@@ -93,6 +93,7 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+    background-color: white;
 }
 
 a {
@@ -104,4 +105,45 @@ a {
   html {
     color-scheme: dark;
   }
+}
+.login-form {
+  max-width: 400px;
+  background-color: white;
+  left      : 50%;
+  top       : 50%;
+  position  : absolute;
+  transform : translate(-50%, -50%);
+}
+.login-form-forgot {
+  float: right;
+}
+.ant-col-rtl .login-form-forgot {
+  float: left;
+}
+.login-form-button {
+  width: 100%;
+}
+h4{
+  margin-bottom: 0.5em;
+  color: rgba(0,0,0,.85);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 1.4;
+
+}
+.storeFilter
+{
+  text-align: left;
+}
+.ant-dropdown-menu-item-selected:not(.ant-dropdown-menu-item-disabled) {
+  background-color: transparent !important;
+}
+.due-date-cell
+{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.empty-range .ant-picker {
+  border-color: red;
 }

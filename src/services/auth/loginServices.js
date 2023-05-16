@@ -1,15 +1,18 @@
+import axios from "axios";
 import genericFormService, { axiosErrorHelper } from "./generics";
 
 
-export async function loginProxyService(postData,) {
-  return genericFormService('post', '/auth/login', postData);
+export async function loginProxyService(postData) {
+  return genericFormService('post', '/auth/login/','', postData);
 }
 
 export async function loginService(email, password) {
   try {
-    const { data } = await Axios.post('/api/login', { storeUid, email, password });
+    const { data } = await axios.post('/api/login/', { email, password });
     return { data };
-  } catch (error) {
-    return axiosErrorHelper((errors));
+  } catch (errors) {
+    console.log('errors', errors);
+    return {errors: errors.response.data}
+    // return axiosErrorHelper((errors));
   }
 }

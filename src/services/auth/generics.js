@@ -49,6 +49,7 @@ const genericFormService = async (
       data: await axiosInstance[action](APIEndpoint, postData, { headers }),
     };
   } catch (errors) {
+    console.log('errors in generics', errors);
     return { errors: axiosErrorHelper(errors) };
   }
 };

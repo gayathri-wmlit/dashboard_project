@@ -4,19 +4,22 @@ import getHeaders from '@/libs/utils/getHeaders';
 import { Provider } from 'react-redux';
 import axios from 'axios';
 import '@/styles/globals.css'
+import store from '@/libs/redux/store';
 
-export default function MainAPP({ Component, pageProps }) {
+export default function MainAPP(props) {
+  const { Component, pageProps, isServer,accessToken } = props
   if (isServer) {
     const {
-      userData, userData: { isLoggedIn, mode },
-    } = initialProps;
+      userData, userData: { isLoggedIn, accessToken },
+    } = props;
+
     if (isLoggedIn) {
       store.dispatch(updateUser(userData));
     } else {
       store.dispatch(loginFailed());
       if (typeof window !== 'undefined') {
         if (!window.location.pathname.includes('login')) {
-          window.location.replace('/admin/login/');
+          window.location.replace('/user/login/');
         }
       }
     }
@@ -43,7 +46,7 @@ MainAPP.getInitialProps = async ({ ctx }) => {
     try {
       const { data: userData } = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/user/`, { headers });
       return {
-        isServer, userData: { ...userData, isLoggedIn: true },
+        isServer, userData: { ...userData, isLoggedIn: true,accessToken },
       };
     } catch (error) {
       return { isServer, userData: { isLoggedIn: false } };

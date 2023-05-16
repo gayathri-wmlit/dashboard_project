@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const axiosInstance = axios.create({ baseURL: process.env.NEXT_PUBLIC_BASE_URL });
+const axiosInstance = axios.create({ baseURL: 'https://devapi.agnicart.com/api' });
 
 axiosInstance.interceptors.response.use(
   (res) => res.data,
