@@ -11,6 +11,7 @@ import { getBillingService } from "../../src/services/billing/billingServices";
 import { CheckCircleOutlined, CloseOutlined } from "@ant-design/icons";
 import { Spin } from "antd";
 import { CSVLink} from 'react-csv';
+import {Modal,Form,DatePicker} from "antd";
 import qs from "qs";
 let firstData = [];
 let listOfStores = [];
@@ -222,6 +223,20 @@ const columns = [
 let urlQuery = { page: 1 };
 export const Billing = () => {
   let dataSource = [];
+  const [visible, setVisible] = useState(false);
+
+  const handleButtonClick = () => {
+    setVisible(true);
+  };
+
+  const handleModalCancel = () => {
+    setVisible(false);
+  };
+
+  const handleFormSubmit = (values) => {
+    console.log('Form values:', values);
+    setVisible(false);
+  };
   const [load, setLoad] = useState(true);
 
   const router = useRouter();
@@ -362,10 +377,33 @@ export const Billing = () => {
         
         <div>
            <div style={{display:'flex',flexDirection:'row',justifyContent:'space-between',paddingRight:'800px'}}>
+           <Button type="primary" onClick={handleButtonClick}>
+       Create Bill
+      </Button>
+
+      <Modal
+        width={340}
+        visible={visible}
+        onCancel={handleModalCancel}
+        footer={null}
+        height={100}
+      >
+        <Form >
+          <Form.Item label="Store UID" name="field1" rules={[{ required: true }]}>
+            <Input style={{width:'160px'}} />
+          </Form.Item>
+          <Form.Item label="Due Date" name="field2" rules={[{ required: true }]}>
+          <DatePicker  />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit">
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+           
         
-        <Button type="primary" >
-            Create Bill
-          </Button>
           <CSVLink data={dataSource} headers={csvHeaders} filename="billing-export.csv">
         <Button type="primary" >
         Export

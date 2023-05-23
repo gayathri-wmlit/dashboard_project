@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { format} from 'date-fns';
 import { Spin } from 'antd';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { useRouter } from "next/router";
 import { useSelector } from 'react-redux';
 import { Select ,Button} from 'antd';
@@ -14,16 +15,20 @@ const date = new Date();
 const onSearch = (value) => {
   console.log('search:', value);
 };
-var cond=false;
+let data1 = [
+];
+
+export default function StoreOrders() {
+  let query={start_date:''};
 
 
-
-let query={start_date:''};
+  const [graphData,setGraphData]=useState([]);
+  var [statusVar,setStatusVar]=useState('');
+  
 var today = new Date();
-
+var [cond,setCond]=useState(false);
 var result0 = format(today,'yyyy-MM-dd');
 query['start_date']=result0;
-export default function StoreOrders() {
   const router = useRouter();
  
   const [loading, setLoading] = useState(false); 
@@ -32,31 +37,48 @@ export default function StoreOrders() {
   const [value, setValue] = useState(null);
   const [assignData, setData] = useState([]);
   let load=true;
-  const CustomDate=((props)=>{
-   let count=0;
-   
+  const [selectedRange, setSelectedRange] = useState([]);
+
+  const handleClear = () => {
+    setSelectedRange([]);
+  };
+  const CustomDate = (props) => {
+    let count = 0;
+    
+
+    if (props) {
+      props.map((val) => {
+        if (val != null) {
+          count = count + 1;
+        }
+      });
   
-  if(props){
-    props.map((val)=>{
-if(val!=null){
-  count=count+1;
-   
-}
-    })
-    if(count==2)
-    {
-      setLoading(true);
-      let startDate=format(props[0].$d,'yyyy-MM-dd');
-      let endDate=format(props[1].$d,'yyyy-MM-dd');
-      console.log(startDate,endDate)
-      query['start_date']=startDate;
-      query['end_date']=endDate;
-      
-      getStoreOrdersData();}
-  }
+      if (count === 2) {
+        setLoading(true);
+        let startDate = format(props[0].$d, 'yyyy-MM-dd');
+        let endDate = format(props[1].$d, 'yyyy-MM-dd');
+        console.log(startDate, endDate);
   
-   
-        });
+        if (startDate === endDate) {
+          
+          alert('Start and end dates are the same. Please select different dates');
+          handleClear();
+         setStatusVar('error');
+        
+        } else {
+          delete query.start_date;
+    delete query.end_date;
+          query['start_date'] = startDate;
+          query['end_date'] = endDate;
+          setSelectedRange(props);
+          getStoreOrdersData();
+          
+          setStatusVar(' ');
+        }
+        
+      }
+    }
+  };
        
   const handleChange = (value) => {
     console.log(`selected ${value}`);
@@ -66,8 +88,9 @@ if(val!=null){
     
     setLoading(true);
     query['start_date']=result0;
-    cond=false;
+    setCond(false);
     delete query.end_date;
+  
     getStoreOrdersData();
   }
   if(value=='Yesterday')
@@ -77,7 +100,7 @@ if(val!=null){
     oneDayAgo.setDate(today.getDate() - 1);
     var result1 =format(oneDayAgo,'yyyy-MM-dd');
     query['start_date']=result1;
-    cond=false;
+    setCond(false);
     delete query.end_date;
     getStoreOrdersData();
   }
@@ -88,7 +111,7 @@ if(val!=null){
     sevenDaysAgo.setDate(today.getDate() - 7);
     var result2 = format(sevenDaysAgo,'yyyy-MM-dd');
     query['start_date']=result2;
-    cond=false;
+    setCond(false);
     delete query.end_date;
     getStoreOrdersData();
   }
@@ -99,7 +122,7 @@ if(val!=null){
     twentyEightDaysAgo.setDate(today.getDate() - 28);
     var result3 =format(twentyEightDaysAgo,'yyyy-MM-dd');
     query['start_date']=result3;
-    cond=false;
+    setCond(false);
     delete query.end_date;
     getStoreOrdersData();
   }
@@ -110,14 +133,15 @@ if(val!=null){
     nintyDaysAgo.setDate(today.getDate() - 90);
     var result4 = format(nintyDaysAgo,'yyyy-MM-dd');
     query['start_date']=result4;
-    cond=false;
+    setCond(false);
     delete query.end_date;
     getStoreOrdersData();
   }
   if(value=='Custom')
   {
+    handleClear();
+    setCond(true);
     
-    cond='true';
     console.log(dates);
     getStoreOrdersData();
     
@@ -126,6 +150,7 @@ if(val!=null){
 
   const getStoreOrdersData = async () => {
     const query2 = qs.stringify(query);
+   
     router.push(`/dashboard/store-orders?${query2}`);
     const { data, errors } = await getStoreOrdersService(query,accessToken);
     setLoading(false);
@@ -136,6 +161,19 @@ if(val!=null){
       
       setData(data);
       
+      if(data.num_orders>0){
+        data1=[]
+      data1.push({
+        store:data.by_store['12453f61'].domain ,
+        amount:data.by_store['12453f61'].amount,
+        
+      })
+      setGraphData(data1);
+    }
+    else{
+      setGraphData([]);
+    }
+     
        console.log(data)
     }
   };
@@ -165,10 +203,31 @@ useEffect(()=>{
      }
     options={options}
   />
-   <div style={{textAlign:"initial"}}>{cond?<div><RangePicker onCalendarChange={(val) => CustomDate(val)} /></div> :<h1></h1>}</div> </div>
+   <div style={{textAlign:"initial"}}>{cond?<div><RangePicker value={selectedRange} status={statusVar} onCalendarChange={(val) => CustomDate(val)} /></div> :<h1></h1>}</div> </div>
   </div><br/>
    <Spin spinning={loading}>
+    <h1>Total Orders Amount:{assignData.num_orders?assignData.by_store['12453f61'].amount:0}</h1>
    <h1>Total orders:{assignData.num_orders}</h1>
+   <div style={{alignContent:'center'}}>
+    
+   <BarChart width={900} height={700} data={graphData}  >
+
+   <CartesianGrid strokeDasharray="3 3" />
+   <XAxis dataKey="store" angle={-90}
+    textAnchor="end"
+    interval={0}
+    height={150}
+   label={{ value: 'Stores', position: 'insideBottom', offset: -5 }} />
+   <YAxis label={{ value: 'Orders Amount', angle: -90, position: 'insideLeft', offset: 1 }}/><br/>
+   <Tooltip /><br/>
+   
+  
+   <Bar dataKey="amount" fill="#8884d8"  />
+ </BarChart>
+
+
+
+    </div>
       </Spin>
 
   

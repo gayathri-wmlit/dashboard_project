@@ -147,3 +147,13 @@ h4{
 .empty-range .ant-picker {
   border-color: red;
 }
+.hidden-labels .recharts-label {
+  display: none;
+}
+.recharts-labels text {
+  visibility: hidden;
+}
+
+
+
+
