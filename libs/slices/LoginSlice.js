@@ -10,6 +10,5 @@ const loginSlice = createSlice({
     updateUser: (state, action) => ({ ...action.payload }),
   },
 });
-
 export const { loginFailed, updateUser } = loginSlice.actions;
 export default loginSlice.reducer;

@@ -153,7 +153,26 @@ h4{
 .recharts-labels text {
   visibility: hidden;
 }
+.login-container {
+  text-align: left;
+  
+}
+.dashboard-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+}
+.transparent-modal .ant-modal-content {
+  background-color: transparent;
+  box-shadow: none;
+}
 
-
+.transparent-modal .ant-modal-header,
+.transparent-modal .ant-modal-body,
+.transparent-modal .ant-modal-footer {
+  background-color: transparent;
+  border: none;
+}
 
 

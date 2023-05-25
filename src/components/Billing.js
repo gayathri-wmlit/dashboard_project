@@ -4,7 +4,7 @@ import Dropdown from "antd";
 import { useRef } from 'react';
 import { useSelector } from "react-redux";
 import { Button, Table, Radio, ResetButton, Input, Menu } from "antd";
-import { FilterOutlined, DownOutlined ,SearchOutlined} from "@ant-design/icons";
+import { FilterOutlined, DownOutlined ,SearchOutlined,EyeOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import { useEffect } from "react";
 import { getBillingService } from "../../src/services/billing/billingServices";
@@ -14,10 +14,12 @@ import { CSVLink} from 'react-csv';
 import {Modal,Form,DatePicker} from "antd";
 import qs from "qs";
 let firstData = [];
+let dataSource2=[]
 let listOfStores = [];
 let value;
 let uniqueSet;
 let uniqueArray=[];
+let c=0;
 const createFilterDropdown = (column) => {
  
   return ({
@@ -144,6 +146,23 @@ const getFilterDropdown = (column) => {
     );
   };
 };
+const columns2=[
+  {
+    title: "Service",
+    dataIndex: "Service",
+    key: "Service",
+  },
+  {
+    title: "Period",
+    dataIndex: "Period",
+    key: "Period",
+  },
+  {
+    title: "Amount",
+    dataIndex: "Amount",
+    key: "Amount",
+  },
+]
 const columns = [
   {
     title: "Bill#",
@@ -223,8 +242,16 @@ const columns = [
 let urlQuery = { page: 1 };
 export const Billing = () => {
   let dataSource = [];
+ 
   const [visible, setVisible] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const handleButtonClick2 = () => {
+    setIsModalVisible(true);
+  };
 
+  const handleModalClose = () => {
+    setIsModalVisible(false);
+  };
   const handleButtonClick = () => {
     setVisible(true);
   };
@@ -341,6 +368,7 @@ export const Billing = () => {
           columns[1].filters=uniqueArray;
           console.log(columns[1].filters);
         }
+        
         dataSource.push({
           bill: props.store.uid,
           store: (
@@ -370,7 +398,24 @@ export const Billing = () => {
               )}
             </div>
           ),
-        });
+          actions:(
+            <div>  
+              <Button type="text" icon={<EyeOutlined />} onClick={handleButtonClick2}>
+            View
+          </Button>
+        
+          <Modal
+        visible={isModalVisible}
+        onCancel={handleModalClose}
+        footer={null}
+      mask={false}
+      >
+      
+       <Table dataSource={dataSource2} columns={columns2} />
+      </Modal>
+          </div>
+          )
+        })
       })}
       
       {

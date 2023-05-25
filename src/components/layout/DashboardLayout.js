@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Button, Layout, Menu, theme ,ConfigProvider} from "antd";
+import { Button, Layout, Menu, theme, ConfigProvider } from "antd";
 import Link from "next/link";
-import { createFromIconfontCN } from "@ant-design/icons";
+import { createFromIconfontCN ,UserOutlined } from "@ant-design/icons";
 import React from "react";
-
+import { PoweroffOutlined,ShopOutlined, OrderedListOutlined ,ShoppingCartOutlined,SolutionOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/router";
+import { loginFailed } from "@/libs/slices/LoginSlice";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -17,7 +18,9 @@ const DashboardLayout = ({ children }) => {
   const [current, setCurrent] = useState("0");
   const router = useRouter();
   const selectedKeys = [router.pathname];
-
+  const handleLogout = () => {
+    router.push("/user/login");
+  };
   const handleMenuClick = ({ key }) => {
     router.push(key);
   };
@@ -31,8 +34,7 @@ const DashboardLayout = ({ children }) => {
 
   return (
     <Layout hasSider>
-      <Sider 
-     
+      <Sider
         style={{
           overflow: "auto",
           height: "100vh",
@@ -40,7 +42,6 @@ const DashboardLayout = ({ children }) => {
           left: 0,
           top: 0,
           bottom: 0,
-          
         }}
       >
         <div>
@@ -50,28 +51,39 @@ const DashboardLayout = ({ children }) => {
           />
         </div>
         <Menu
-         onClick={handleMenuClick} selectedKeys={selectedKeys}
-         theme="dark"
-         mode="inline"
-         style={{backgroundColor:'#001529'}}
+          onClick={handleMenuClick}
+          selectedKeys={selectedKeys}
+          theme="dark"
+          mode="inline"
+          style={{ backgroundColor: "#001529" }}
         >
-          <Menu.Item key="/dashboard/billing" >
-          Billing <IconFont type="icon-bill-o" />{" "}
+          <Menu.Item key="/dashboard/billing" icon={<SolutionOutlined />}>
+            Billing <IconFont type="icon-bill-o" />{" "}
           </Menu.Item>
-          <Menu.Item key="/dashboard/live-stores" >Live Stores</Menu.Item>
-          <Menu.Item key="/dashboard/store-orders">Store Orders</Menu.Item>
-       
+          <Menu.Item key="/dashboard/live-stores" icon={<ShopOutlined/> }>Live Stores</Menu.Item>
+          <Menu.Item key="/dashboard/store-orders" icon={ <ShoppingCartOutlined />}>Store Orders</Menu.Item>
         </Menu>
       </Sider>
       <Layout className="site-layout" style={{ marginLeft: 200 }}>
-      <ConfigProvider theme="dark"   mode="inline">
-        <Header style={{ padding: 0,backgroundColor:'#001529' }}>
-       
-          <h1 style={{ textAlign: "center", fontSize: "20px",color:'white' }}>
-            <b>Dashboard</b>
-          </h1>
-         
-        </Header>
+        <ConfigProvider theme="dark" mode="inline">
+          <Header style={{ padding: 0, backgroundColor: "#001529" }}>
+            <h1
+              style={{ textAlign: "center", fontSize: "20px", color: "white" }}
+              className="dashboard-container "
+            >
+              <b style={{ paddingLeft: "450px" }}>Dashboard</b>
+              <div style={{ paddingRight: "30px" }}>
+             
+                <Button
+                  type="primary"
+                  icon={<PoweroffOutlined />}
+                  onClick={handleLogout}
+                >
+                  Logout
+                </Button>
+              </div>
+            </h1>
+          </Header>
         </ConfigProvider>
 
         <Content style={{ margin: "24px 16px 0", overflow: "initial" }}>
@@ -85,7 +97,6 @@ const DashboardLayout = ({ children }) => {
             {children}
           </div>
         </Content>
-        
       </Layout>
     </Layout>
   );
