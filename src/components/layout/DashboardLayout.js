@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { Button, Layout, Menu, theme, ConfigProvider } from "antd";
+import { Button, Layout, Menu, theme, ConfigProvider ,Avatar,Dropdown} from "antd";
 import Link from "next/link";
-import { createFromIconfontCN ,UserOutlined } from "@ant-design/icons";
+import { createFromIconfontCN ,UserOutlined ,SettingOutlined } from "@ant-design/icons";
 import React from "react";
 import { PoweroffOutlined,ShopOutlined, OrderedListOutlined ,ShoppingCartOutlined,SolutionOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
@@ -15,6 +15,7 @@ const IconFont = createFromIconfontCN({
 });
 
 const DashboardLayout = ({ children }) => {
+
   const [current, setCurrent] = useState("0");
   const router = useRouter();
   const selectedKeys = [router.pathname];
@@ -24,7 +25,19 @@ const DashboardLayout = ({ children }) => {
   const handleMenuClick = ({ key }) => {
     router.push(key);
   };
-
+  const menu = (
+    <Menu>
+      <Menu.Item key="profile" icon={<UserOutlined />}>
+        Profile
+      </Menu.Item>
+      <Menu.Item key="settings" icon={ <SettingOutlined />}>
+        Settings
+      </Menu.Item>
+      <Menu.Item key="logout"  onClick={handleLogout}  icon={<PoweroffOutlined />}>
+        Logout
+      </Menu.Item>
+    </Menu>
+  );
   const { accessToken } = useSelector((state) => state.user);
 
   console.log(accessToken, "accessToken");
@@ -73,14 +86,10 @@ const DashboardLayout = ({ children }) => {
             >
               <b style={{ paddingLeft: "450px" }}>Dashboard</b>
               <div style={{ paddingRight: "30px" }}>
-             
-                <Button
-                  type="primary"
-                  icon={<PoweroffOutlined />}
-                  onClick={handleLogout}
-                >
-                  Logout
-                </Button>
+              <Dropdown overlay={menu} trigger={['click']}>
+      <Avatar icon={<UserOutlined />} />
+    </Dropdown>
+                
               </div>
             </h1>
           </Header>

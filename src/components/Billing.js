@@ -13,8 +13,10 @@ import { Spin } from "antd";
 import { CSVLink} from 'react-csv';
 import {Modal,Form,DatePicker} from "antd";
 import qs from "qs";
+import billReceipt from "../services/billing/billReceipt";
+import BillReceipt from "../services/billing/billReceipt";
 let firstData = [];
-let dataSource2=[]
+
 let listOfStores = [];
 let value;
 let uniqueSet;
@@ -242,20 +244,29 @@ const columns = [
 let urlQuery = { page: 1 };
 export const Billing = () => {
   let dataSource = [];
- 
+  let dataSource2=[]
   const [visible, setVisible] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const handleButtonClick2 = () => {
-    setIsModalVisible(true);
+  const [visible2, setVisible2] = useState(false);
+  const [visible3, setVisible3] = useState(false);
+  const billReceiptData = () => {
+    setVisible3(true);
+  };
+  const showModal = () => {
+    setVisible2(true);
   };
 
-  const handleModalClose = () => {
-    setIsModalVisible(false);
+  const handleModalOk = () => {
+    setVisible2(false);
   };
   const handleButtonClick = () => {
     setVisible(true);
   };
-
+  const handleModalCancel2 = () => {
+    setVisible2(false);
+  };
+  const handleModalCancel3= () => {
+    setVisible3(false);
+  };
   const handleModalCancel = () => {
     setVisible(false);
   };
@@ -347,7 +358,69 @@ export const Billing = () => {
       setLoad(false);
     }
   };
-
+  assignData.map((props) => {
+    if (assignData.length == 6) {
+      firstData = assignData;
+      listOfStores.push({
+        text: props.store.primary_domain,
+        value: props.store.primary_domain,
+      });
+      let jsonObject = listOfStores.map(JSON.stringify);
+      uniqueSet = new Set(jsonObject);
+      uniqueArray = Array.from(uniqueSet).map(JSON.parse);
+      columns[1].filters=uniqueArray;
+      console.log(columns[1].filters);
+    }
+    
+    dataSource.push({
+      bill: props.store.uid,
+      store: (
+        <a href={`http://${props.store.primary_domain}`} style={{ color: "#00BFFF" }}>
+          {props.store.primary_domain}
+        </a>
+      ),
+      dueDate: props.due_date,
+      Total: props.total,
+      pending: props.pending_amount,
+      published: (
+        <div>
+          {props.bill_verified ? (
+            <CheckCircleOutlined style={{ color: "green" }} />
+          ) : (
+            <CloseOutlined style={{ color: "red" }} />
+          )}
+        </div>
+      ),
+      Received: (
+        <div>
+               {" "}
+          {props.payment_verified ? (
+            <CheckCircleOutlined style={{ color: "green" }} />
+          ) : (
+            <CloseOutlined style={{ color: "red" }} />
+          )}
+        </div>
+      ),
+      actions:(
+        <div>  
+          <Button icon={<EyeOutlined />} onClick={billReceiptData} >
+       View
+      </Button>
+      {
+      props.services.map((obj)=>{
+        dataSource2.push({Service:obj.plan_name+obj.addon_name,Period:obj.start_date+obj.end_date,Amount:obj.total})
+      })
+    }
+      
+    <div style={{paddingTop:'8px'}}>
+    {
+      props.pending_amount?<Button type="primary" onClick={showModal} >Add Payment</Button>:<h1/>
+    }
+  </div>
+      </div>
+      )
+    })
+  })
   useEffect(() => {
     getBillingData();
   }, []);
@@ -355,72 +428,75 @@ export const Billing = () => {
   return (
     <div>
       
-      {assignData.map((props) => {
-        if (assignData.length == 6) {
-          firstData = assignData;
-          listOfStores.push({
-            text: props.store.primary_domain,
-            value: props.store.primary_domain,
-          });
-          let jsonObject = listOfStores.map(JSON.stringify);
-          uniqueSet = new Set(jsonObject);
-          uniqueArray = Array.from(uniqueSet).map(JSON.parse);
-          columns[1].filters=uniqueArray;
-          console.log(columns[1].filters);
-        }
-        
-        dataSource.push({
-          bill: props.store.uid,
-          store: (
-            <a href={`http://${props.store.primary_domain}`} style={{ color: "#00BFFF" }}>
-              {props.store.primary_domain}
-            </a>
-          ),
-          dueDate: props.due_date,
-          Total: props.total,
-          pending: props.pending_amount,
-          published: (
-            <div>
-              {props.bill_verified ? (
-                <CheckCircleOutlined style={{ color: "green" }} />
-              ) : (
-                <CloseOutlined style={{ color: "red" }} />
-              )}
-            </div>
-          ),
-          Received: (
-            <div>
-                   {" "}
-              {props.payment_verified ? (
-                <CheckCircleOutlined style={{ color: "green" }} />
-              ) : (
-                <CloseOutlined style={{ color: "red" }} />
-              )}
-            </div>
-          ),
-          actions:(
-            <div>  
-              <Button type="text" icon={<EyeOutlined />} onClick={handleButtonClick2}>
-            View
-          </Button>
-        
-          <Modal
-        visible={isModalVisible}
-        onCancel={handleModalClose}
-        footer={null}
-      mask={false}
-      >
-      
-       <Table dataSource={dataSource2} columns={columns2} />
-      </Modal>
-          </div>
-          )
-        })
-      })}
+      {}
       
       {
         
         <div>
+           <Modal title="Basic Modal" visible={visible3} closable={false} footer={[
+      <Button key="cancel" onClick={handleModalCancel3}>
+        Close
+      </Button>,
+      <Button key="submit" type="primary" htmlType="submit" form="receiptForm">
+        Submit
+      </Button>,
+    ]}>
+    
+   <Table dataSource={dataSource2} columns={columns2}/>
+  
+  </Modal>
+          <Modal
+        visible={visible2}
+        closable={false}
+        footer={[
+          <Button key="cancel" onClick={handleModalCancel2}>
+            Close
+          </Button>,
+          <Button key="submit" type="primary" htmlType="submit" form="receiptForm">
+            Submit
+          </Button>,
+        ]}
+      >
+        <Form >
+          <Form.Item
+            label="Amount"
+            name="amount"
+            rules={[{ required: true }]}
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 16 }}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Method"
+            name="method"
+            rules={[{ required: true }]}
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 16 }}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Reference"
+            name="reference"
+            rules={[{ required: true }]}
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 16 }}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Date"
+            name="date"
+            rules={[{ required: true }]}
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 16 }}
+          >
+            <DatePicker />
+          </Form.Item>
+          
+        </Form>
+      </Modal>
            <div style={{display:'flex',flexDirection:'row',justifyContent:'space-between',paddingRight:'800px'}}>
            <Button type="primary" onClick={handleButtonClick}>
        Create Bill
@@ -429,9 +505,17 @@ export const Billing = () => {
       <Modal
         width={340}
         visible={visible}
-        onCancel={handleModalCancel}
-        footer={null}
+        footer={[
+          <Button key="cancel" onClick={handleModalCancel}>
+            Close
+          </Button>,
+          <Button key="submit" type="primary" htmlType="submit" form="receiptForm">
+            Submit
+          </Button>,
+        ]}
+        
         height={100}
+        closable={false}
       >
         <Form >
           <Form.Item label="Store UID" name="field1" rules={[{ required: true }]}>
@@ -440,11 +524,7 @@ export const Billing = () => {
           <Form.Item label="Due Date" name="field2" rules={[{ required: true }]}>
           <DatePicker  />
           </Form.Item>
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              Submit
-            </Button>
-          </Form.Item>
+         
         </Form>
       </Modal>
            
@@ -456,6 +536,7 @@ export const Billing = () => {
       </CSVLink></div><br/>
           <div style={{ width: '1000px' }}>
           <Table
+          
             dataSource={dataSource}
             columns={columns}
             onChange={onChange}
